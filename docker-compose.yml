@@ -1,0 +1,70 @@
+version: "3.7"
+
+services:
+  t-blog-api-gateway:
+    image: nginx:1.21.6
+    container_name: t-blog-api-gateway
+    depends_on:
+      - t-blog-service
+      - t-user-service
+    volumes:
+      - ./t-blog-api-gateway/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+
+  t-blog-service:
+    image: t-blog-service
+    container_name: t-blog-service
+    build: ./t-blog-service
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - ./t-blog-service:/app/
+    expose:
+      - 8000
+    environment:
+      - DATABASE_URL=postgresql://${BLOG_SERVICE_POSTGRES_USER}:${BLOG_SERVICE_POSTGRES_PASSWORD}@blog_db/${BLOG_SERVICE_POSTGRES_DB}
+      - USER_SERVICE_HOST_URL=${USER_SERVICE_HOST_URL}
+    depends_on:
+      - "blog_db"
+
+  blog_db:
+    image: postgres:14.2-alpine
+    container_name: t-blog-service-db
+    volumes:
+      - postgres_data_blog:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${BLOG_SERVICE_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${BLOG_SERVICE_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${BLOG_SERVICE_POSTGRES_DB}
+    ports:
+      - 5433:5432
+
+  t-user-service:
+    image: t-user-service
+    container_name: t-user-service
+    build: ./t-user-service
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - ./t-user-service:/app/
+    expose:
+      - 8000
+    environment:
+      - DATABASE_URL=postgresql://${USER_SERVICE_POSTGRES_USER}:${USER_SERVICE_POSTGRES_PASSWORD}@user_db/${USER_SERVICE_POSTGRES_DB}
+    depends_on:
+      - "user_db"
+
+  user_db:
+    image: postgres:14.2-alpine
+    container_name: t-user-service-db
+    volumes:
+      - postgres_data_user:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${USER_SERVICE_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${USER_SERVICE_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${USER_SERVICE_POSTGRES_DB}
+    ports:
+      - 5434:5432
+
+volumes:
+  postgres_data_blog:
+  postgres_data_user:
