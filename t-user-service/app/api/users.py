@@ -19,7 +19,7 @@ async def create_user(payload: UserIn):
     return response
 
 
-@users.get('/{id}/', response_model=UserOut)
+@users.get('/{id}', response_model=UserOut)
 async def get_user(id: int):
     user = await db_manager.get_user(id)
     if not user:
