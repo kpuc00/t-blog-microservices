@@ -5,8 +5,10 @@ services:
     image: nginx:1.21.6
     container_name: t-blog-api-gateway
     depends_on:
-      - t-blog-service
       - t-user-service
+      - t-blog-service
+      - t-article-service
+      - t-comment-service
     volumes:
       - ./t-blog-api-gateway/nginx.conf:/etc/nginx/nginx.conf
     ports:
@@ -16,11 +18,8 @@ services:
     image: t-user-service
     container_name: t-user-service
     build: ./t-user-service
-    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     volumes:
       - ./t-user-service:/app/
-    expose:
-      - 8000
     environment:
       - DATABASE_URL=postgresql://${USER_SERVICE_POSTGRES_USER}:${USER_SERVICE_POSTGRES_PASSWORD}@user_db/${USER_SERVICE_POSTGRES_DB}
     depends_on:
@@ -42,11 +41,8 @@ services:
     image: t-blog-service
     container_name: t-blog-service
     build: ./t-blog-service
-    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     volumes:
       - ./t-blog-service:/app/
-    expose:
-      - 8000
     environment:
       - DATABASE_URL=postgresql://${BLOG_SERVICE_POSTGRES_USER}:${BLOG_SERVICE_POSTGRES_PASSWORD}@blog_db/${BLOG_SERVICE_POSTGRES_DB}
       - USER_SERVICE_HOST_URL=${USER_SERVICE_HOST_URL}
@@ -69,11 +65,8 @@ services:
     image: t-article-service
     container_name: t-article-service
     build: ./t-article-service
-    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     volumes:
       - ./t-article-service:/app/
-    expose:
-      - 8000
     environment:
       - DATABASE_URL=postgresql://${ARTICLE_SERVICE_POSTGRES_USER}:${ARTICLE_SERVICE_POSTGRES_PASSWORD}@article_db/${ARTICLE_SERVICE_POSTGRES_DB}
       - USER_SERVICE_HOST_URL=${USER_SERVICE_HOST_URL}
@@ -97,11 +90,8 @@ services:
     image: t-comment-service
     container_name: t-comment-service
     build: ./t-comment-service
-    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     volumes:
       - ./t-comment-service:/app/
-    expose:
-      - 8000
     environment:
       - DATABASE_URL=postgresql://${COMMENT_SERVICE_POSTGRES_USER}:${COMMENT_SERVICE_POSTGRES_PASSWORD}@comment_db/${COMMENT_SERVICE_POSTGRES_DB}
       - USER_SERVICE_HOST_URL=${USER_SERVICE_HOST_URL}
