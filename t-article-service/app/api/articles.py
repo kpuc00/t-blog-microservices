@@ -14,6 +14,14 @@ async def index():
     return await db_manager.get_all_articles()
 
 
+@articles.get('/{id}', response_model=ArticleOut)
+async def get_article(id: int):
+    article = await db_manager.get_article(id)
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return article
+
+
 @articles.post('/', status_code=201)
 async def create_article(payload: ArticleIn):
     authorId = payload.authorId

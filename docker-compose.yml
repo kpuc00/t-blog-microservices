@@ -93,7 +93,36 @@ services:
     ports:
       - 5435:5432
 
+  t-comment-service:
+    image: t-comment-service
+    container_name: t-comment-service
+    build: ./t-comment-service
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - ./t-comment-service:/app/
+    expose:
+      - 8000
+    environment:
+      - DATABASE_URL=postgresql://${COMMENT_SERVICE_POSTGRES_USER}:${COMMENT_SERVICE_POSTGRES_PASSWORD}@comment_db/${COMMENT_SERVICE_POSTGRES_DB}
+      - USER_SERVICE_HOST_URL=${USER_SERVICE_HOST_URL}
+      - ARTICLE_SERVICE_HOST_URL=${ARTICLE_SERVICE_HOST_URL}
+    depends_on:
+      - "comment_db"
+
+  comment_db:
+    image: postgres:14.2-alpine
+    container_name: t-comment-service-db
+    volumes:
+      - postgres_data_comment:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${COMMENT_SERVICE_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${COMMENT_SERVICE_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${COMMENT_SERVICE_POSTGRES_DB}
+    ports:
+      - 5436:5432
+
 volumes:
   postgres_data_user:
   postgres_data_blog:
   postgres_data_article:
+  postgres_data_comment:
