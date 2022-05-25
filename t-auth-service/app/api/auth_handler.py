@@ -2,17 +2,17 @@ import os
 from fastapi import Depends, HTTPException, status
 from datetime import datetime, timedelta
 from typing import Union
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from app.api.models import User, TokenData
 from app.api import db_manager
+from app.api.utils import OAuth2PasswordBearerWithCookie
 
 SECRET_KEY = os.environ.get('AUTH_SECRET_KEY')
 ALGORITHM = os.environ.get('AUTH_TOKEN_ALGORITHM')
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="login")
 
 
 def verify_password(plain_password, hashed_password):
@@ -21,12 +21,6 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(password):
     return pwd_context.hash(password)
-
-
-# def get_user(db, username: str):
-#     if username in db:
-#         user_dict = db[username]
-#         return UserInDB(**user_dict)
 
 
 async def authenticate_user(username: str, password: str):
