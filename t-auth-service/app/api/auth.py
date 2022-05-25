@@ -48,18 +48,24 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth_handler.create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.username, "scopes": form_data.scopes},
+        expires_delta=access_token_expires
     )
     response.set_cookie(key="access_token",
                         value=f"Bearer {access_token}", httponly=True)
     return {"message": "User logged in successfully."}
 
 
-@auth.get("/users/me/", response_model=User)
+@auth.get("/users/me", response_model=User)
 async def read_users_me(current_user: User = Depends(auth_handler.get_current_active_user)):
     return current_user
 
 
-@auth.get("/users/me/items/")
-async def read_own_items(current_user: User = Depends(auth_handler.get_current_active_user)):
-    return [{"item_id": "Foo", "owner": current_user.username}]
+@auth.get("/moderator")
+async def test_moderator_permission(current_user: User = Depends(auth_handler.try_moderator_scope)):
+    return {"message": f"User {current_user.username} is moderator"}
+
+
+@auth.get("/admin")
+async def test_admin_permission(current_user: User = Depends(auth_handler.try_admin_scope)):
+    return {"message": f"User {current_user.username} is administrator"}
