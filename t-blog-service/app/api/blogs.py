@@ -1,16 +1,26 @@
 from fastapi import HTTPException
 from typing import List
-from fastapi import Header, APIRouter
-
+from fastapi import Header, APIRouter, Depends
+from fastapi.security import SecurityScopes
 from app.api.models import BlogIn, BlogOut, BlogUpdate
 from app.api import db_manager
 from app.api.service import is_user_present
+from app.api.utils import OAuth2PasswordBearerWithCookie
+import httpx
 
 blogs = APIRouter()
 
+oauth2_scheme = OAuth2PasswordBearerWithCookie(
+    tokenUrl="http://localhost/api/auth/login")
+
 
 @blogs.get('/', response_model=List[BlogOut])
-async def index():
+async def index(authorization: str = Depends(oauth2_scheme)):
+    print(authorization)
+    headers = {"Authorization": f"Bearer {authorization}"}
+    result = httpx.get(
+        "http://t-auth-service:8000/api/auth/users/me", headers=headers)
+    print(result)
     return await db_manager.get_all_blogs()
 
 
