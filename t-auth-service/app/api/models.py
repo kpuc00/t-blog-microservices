@@ -8,7 +8,6 @@ class TokenData(BaseModel):
 
 
 class User(BaseModel):
-    id: int
     username: str
     email: Union[str, None] = None
     full_name: Union[str, None] = None
@@ -17,3 +16,7 @@ class User(BaseModel):
 
 class UserInDB(User):
     password: str
+
+
+class UserOut(User):
+    id: int

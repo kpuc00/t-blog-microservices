@@ -4,7 +4,7 @@ from fastapi import Depends, APIRouter, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from app.api import auth_handler
 from app.api import db_manager
-from app.api.models import User, UserInDB
+from app.api.models import User, UserInDB, UserOut
 
 
 ACCESS_TOKEN_EXPIRE_MINUTES = int(
@@ -56,8 +56,8 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
     return {"message": "User logged in successfully."}
 
 
-@auth.get("/users/me", response_model=User)
-async def read_users_me(current_user: User = Depends(auth_handler.get_current_active_user)):
+@auth.get("/users/me", response_model=UserOut)
+async def read_users_me(current_user: UserOut = Depends(auth_handler.get_current_active_user)):
     return current_user
 
 
