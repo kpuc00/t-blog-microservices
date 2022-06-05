@@ -4,11 +4,14 @@ from app.api.db import metadata, database, engine
 
 metadata.create_all(engine)
 
-app = FastAPI(openapi_url="/api/blogs/openapi.json", docs_url="/api/blogs/docs")
+app = FastAPI(openapi_url="/api/blogs/openapi.json",
+              docs_url="/api/blogs/docs")
+
 
 @app.on_event("startup")
 async def startup():
     await database.connect()
+
 
 @app.on_event("shutdown")
 async def shutdown():

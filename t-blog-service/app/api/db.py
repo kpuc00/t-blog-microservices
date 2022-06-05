@@ -1,4 +1,5 @@
-from sqlalchemy import (Column, Integer, MetaData, String, Table, create_engine, ARRAY)
+from sqlalchemy import (Column, Integer, MetaData,
+                        String, Table, create_engine, ARRAY)
 from databases import Database
 import os
 
