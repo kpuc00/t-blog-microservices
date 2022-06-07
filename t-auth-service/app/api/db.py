@@ -4,7 +4,8 @@ from databases import Database
 import os
 
 DATABASE_URL = os.getenv('DATABASE_URL')
-print(f"databaseURL - {DATABASE_URL}")
+print('os environ')
+print(os.environ)
 
 engine = create_engine(DATABASE_URL)
 metadata = MetaData()
