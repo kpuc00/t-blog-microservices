@@ -26,14 +26,6 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
 
-#       - name: Setting up
-#         uses: google-github-actions/setup-gcloud@v0.6.0
-#         with:
-#           version: '290.0.1'
-#           service_account_key: ${{ secrets.GCP_SA_KEY_JSON }}
-#           service_account_email: "deploy-to-google-cloud-run@t-blog-bg.iam.gserviceaccount.com"
-#           project_id: t-blog-bg
-
       # Build and push image to Google Container Registry
       - name: Building the Docker Image (🏗)
         working-directory: ./t-blog-service
@@ -45,6 +37,5 @@ jobs:
           service: t-auth-service
           image: gcr.io/t-blog-bg/t-auth-service:latest
           region: europe-west1
-          credentials: ${{ secrets.GCP_SA_KEY_JSON }}
-          project_id: t-blog-bg
           env_vars: DB_HOSTNAME=${{ secrets.DB_HOSTNAME }},DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},AUTH_SECRET_KEY=${{ secrets.AUTH_SECRET_KEY }},AUTH_TOKEN_ALGORITHM=${{ secrets.AUTH_TOKEN_ALGORITHM }},AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES }},AUTH_SERVICE_POSTGRES_DB=${{ secrets.AUTH_SERVICE_POSTGRES_DB }}
+          flags: --allow-unauthenticated
