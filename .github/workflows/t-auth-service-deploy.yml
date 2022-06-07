@@ -39,10 +39,7 @@ jobs:
           region: europe-west1
           flags: --allow-unauthenticated
           env_vars: |
-            DB_HOSTNAME=${{ secrets.DB_HOSTNAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DATABASE_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOSTNAME }}/${{ secrets.AUTH_SERVICE_POSTGRES_DB }}
             AUTH_SECRET_KEY=${{ secrets.AUTH_SECRET_KEY }}
             AUTH_TOKEN_ALGORITHM=${{ secrets.AUTH_TOKEN_ALGORITHM }}
             AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES }}
-            AUTH_SERVICE_POSTGRES_DB=${{ secrets.AUTH_SERVICE_POSTGRES_DB }}
