@@ -33,14 +33,15 @@ jobs:
       - name: Building (🏗)
         run: |-
           gcloud builds submit \
-            --tag gcr.io/t-blog-bg/t-auth-service
+            --tag gcr.io/t-blog-bg/t-auth-service:latest
 
       # Setup gcloud CLI
       - name: Deploy (🚀)
         uses: google-github-actions/deploy-cloudrun@v0.10.0
         with:
           service: t-auth-service
-          image: gcr.io/t-blog-bg/t-auth-service
+          image: gcr.io/t-blog-bg/t-auth-service:latest
           region: europe-west1
           credentials: ${{ secrets.GCP_SA_KEY_JSON }}
           project_id: t-blog-bg
+          env_vars: DB_HOSTNAME=${{ secrets.DB_HOSTNAME }},DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},AUTH_SECRET_KEY=${{ secrets.AUTH_SECRET_KEY }},AUTH_TOKEN_ALGORITHM=${{ secrets.AUTH_TOKEN_ALGORITHM }},AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES }},AUTH_SERVICE_POSTGRES_DB=${{ secrets.AUTH_SERVICE_POSTGRES_DB }}
