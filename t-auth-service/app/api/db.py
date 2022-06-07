@@ -3,7 +3,7 @@ from sqlalchemy import (Column, Integer, MetaData,
 from databases import Database
 import os
 
-DATABASE_URL = os.environ['DATABASE_URL']
+DATABASE_URL = os.getenv('DATABASE_URL')
 print(f"databaseURL - {DATABASE_URL}")
 
 engine = create_engine(DATABASE_URL)
