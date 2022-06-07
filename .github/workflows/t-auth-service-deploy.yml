@@ -28,7 +28,7 @@ jobs:
 
       # Build and push image to Google Container Registry
       - name: Building the Docker Image (🏗)
-        working-directory: ./t-blog-service
+        working-directory: ./t-auth-service
         run: gcloud builds submit --tag gcr.io/t-blog-bg/t-auth-service:latest
 
       - name: Deploy to Cloud Run (🚀)
