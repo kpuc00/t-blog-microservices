@@ -1,0 +1,46 @@
+# This workflow will build and push the image of the t-auth-service to Google Container Registry and deploy it to Google Cloud Run 
+# on push or pull request to the main branch if there are changes in the t-auth-service folder.
+
+name: Deploy t-auth-service to Google Cloud Run
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 't-auth-service/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 't-auth-service/**'
+jobs:
+  deploy:
+    name: Deploying t-auth-service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Build and push image to Google Container Registry
+      - name: Setting up
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          version: '286.0.0'
+          service_account_key: ${{ secrets.GCP_SA_KEY_JSON }}
+          service_account_email: "deploy-to-google-cloud-run@t-blog-bg.iam.gserviceaccount.com"
+          project_id: t-blog-bg
+
+      - name: Building (🏗)
+        run: |-
+          gcloud builds submit \
+            --tag gcr.io/t-blog-bg/t-auth-service
+
+      # Setup gcloud CLI
+      - name: Deploy (🚀)
+        uses: google-github-actions/deploy-cloudrun@main
+        with:
+          service: t-auth-service
+          image: gcr.io/t-blog-bg/t-auth-service
+          region: europe-west1
+          credentials: ${{ secrets.GCP_SA_KEY_JSON }}
+          project_id: t-blog-bg
