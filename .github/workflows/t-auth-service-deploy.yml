@@ -37,7 +37,7 @@ jobs:
           service: t-auth-service
           image: gcr.io/t-blog-bg/t-auth-service:latest
           region: europe-west1
-          flags: --allow-unauthenticated
+          flags: --allow-unauthenticated --member=allUsers --role=roles/run.invoker
           env_vars: |
             DB_HOSTNAME=${{ secrets.DB_HOSTNAME }}
             DB_USER=${{ secrets.DB_USER }}
