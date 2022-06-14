@@ -12,7 +12,7 @@ jobs:
   deploy:
     name: Deploying t-user-service
     runs-on: ubuntu-latest
-    environment: production
+    environment: t-user-service-prod
     steps:
       - name: Checkout
         uses: actions/checkout@v2
