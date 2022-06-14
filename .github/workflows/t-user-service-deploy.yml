@@ -1,26 +1,26 @@
-# This workflow will build and push the image of the t-auth-service to Google Container Registry and deploy it to Google Cloud Run 
-# on push or pull request to the main branch if there are changes in the t-auth-service folder.
+# This workflow will build and push the image of the t-user-service to Google Container Registry and deploy it to Google Cloud Run
+# on push or pull request to the main branch if there are changes in the t-user-service folder.
 
-name: Deploy t-auth-service to Google Cloud Run
+name: Deploy t-user-service to Google Cloud Run
 on:
   push:
     branches:
       - main
     paths:
-      - 't-auth-service/**'
+      - "t-user-service/**"
   pull_request:
     branches:
       - main
     paths:
-      - 't-auth-service/**'
+      - "t-user-service/**"
 jobs:
   deploy:
-    name: Deploying t-auth-service
+    name: Deploying t-user-service
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v0.7.3
         with:
@@ -28,18 +28,18 @@ jobs:
 
       # Build and push image to Google Container Registry
       - name: Building the Docker Image (🏗)
-        working-directory: ./t-auth-service
-        run: gcloud builds submit --tag gcr.io/t-blog-bg/t-auth-service:latest
+        working-directory: ./t-user-service
+        run: gcloud builds submit --tag gcr.io/t-blog-bg/t-user-service:latest
 
       - name: Deploy to Cloud Run (🚀)
         uses: google-github-actions/deploy-cloudrun@v0.10.0
         with:
-          service: t-auth-service
-          image: gcr.io/t-blog-bg/t-auth-service:latest
+          service: t-user-service
+          image: gcr.io/t-blog-bg/t-user-service:latest
           region: europe-west1
           flags: --allow-unauthenticated
           env_vars: |
-            DATABASE_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOSTNAME }}/${{ secrets.AUTH_SERVICE_POSTGRES_DB }}
+            DATABASE_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOSTNAME }}/${{ secrets.USER_SERVICE_POSTGRES_DB }}
             AUTH_SECRET_KEY=${{ secrets.AUTH_SECRET_KEY }}
             AUTH_TOKEN_ALGORITHM=${{ secrets.AUTH_TOKEN_ALGORITHM }}
             AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES }}

@@ -15,18 +15,6 @@ services:
     ports:
       - 80:80
 
-  t-auth-service:
-    image: t-auth-service
-    container_name: t-auth-service
-    build: ./t-auth-service
-    volumes:
-      - ./t-auth-service:/app/
-    environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOSTNAME}/${AUTH_SERVICE_POSTGRES_DB}
-      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY}
-      - AUTH_TOKEN_ALGORITHM=${AUTH_TOKEN_ALGORITHM}
-      - AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${AUTH_ACCESS_TOKEN_EXPIRE_MINUTES}
-
   t-user-service:
     image: t-user-service
     container_name: t-user-service
@@ -35,6 +23,9 @@ services:
       - ./t-user-service:/app/
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOSTNAME}/${USER_SERVICE_POSTGRES_DB}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY}
+      - AUTH_TOKEN_ALGORITHM=${AUTH_TOKEN_ALGORITHM}
+      - AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${AUTH_ACCESS_TOKEN_EXPIRE_MINUTES}
 
   t-blog-service:
     image: t-blog-service

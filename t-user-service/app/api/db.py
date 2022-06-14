@@ -1,8 +1,6 @@
 from sqlalchemy import (Column, Integer, MetaData,
-                        String, Table, create_engine, ARRAY)
-
+                        String, Boolean, Table, create_engine)
 from databases import Database
-
 import os
 
 DATABASE_URL = os.getenv('DATABASE_URL')
@@ -14,8 +12,11 @@ users = Table(
     'users',
     metadata,
     Column('id', Integer, primary_key=True),
-    Column('name', String(20)),
-    Column('email', String(50))
+    Column('username', String(20), nullable=False),
+    Column('full_name', String(40), nullable=False),
+    Column('email', String(50), nullable=False),
+    Column('password', String(130), nullable=False),
+    Column('disabled', Boolean)
 )
 
 database = Database(DATABASE_URL)
