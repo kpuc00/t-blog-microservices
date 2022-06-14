@@ -23,7 +23,7 @@ async def register_user(payload: UserInDB):
     disabled = payload.disabled
     exist = await db_manager.get_user(username)
     if exist:
-        raise HTTPException(status_code=400, detail="Username is taken.")
+        raise HTTPException(status_code=400, detail="Username is taken")
     hashed_password = auth_handler.get_password_hash(password)
     user = {
         "username": username,
@@ -33,7 +33,7 @@ async def register_user(payload: UserInDB):
         "disabled": disabled
     }
     await db_manager.add_user(user)
-    return {"message": "User registered successfully."}
+    return {"message": "User registered successfully"}
 
 
 @users.post("/login")
@@ -53,7 +53,7 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
     )
     response.set_cookie(key="access_token",
                         value=f"Bearer {access_token}", httponly=True)
-    return {"message": "User logged in successfully."}
+    return {"message": "User logged in successfully"}
 
 
 @users.get("/users/me", response_model=UserOut)
