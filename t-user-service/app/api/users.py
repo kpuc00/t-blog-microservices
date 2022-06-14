@@ -11,10 +11,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.environ.get('AUTH_ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 
-user = APIRouter()
+users = APIRouter()
 
 
-@user.post("/register", status_code=201)
+@users.post("/register", status_code=201)
 async def register_user(payload: UserInDB):
     username = payload.username
     password = payload.password
@@ -36,7 +36,7 @@ async def register_user(payload: UserInDB):
     return {"message": "User registered successfully."}
 
 
-@user.post("/login")
+@users.post("/login")
 async def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     user = await auth_handler.authenticate_user(
         form_data.username, form_data.password)
@@ -56,16 +56,16 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
     return {"message": "User logged in successfully."}
 
 
-@user.get("/users/me", response_model=UserOut)
+@users.get("/users/me", response_model=UserOut)
 async def read_users_me(current_user: UserOut = Depends(auth_handler.get_current_active_user)):
     return current_user
 
 
-@user.get("/moderator")
+@users.get("/moderator")
 async def test_moderator_permission(current_user: User = Depends(auth_handler.try_moderator_scope)):
     return {"message": f"User {current_user.username} is moderator"}
 
 
-@user.get("/admin")
+@users.get("/admin")
 async def test_admin_permission(current_user: User = Depends(auth_handler.try_admin_scope)):
     return {"message": f"User {current_user.username} is administrator"}

@@ -8,11 +8,6 @@ on:
       - main
     paths:
       - "t-user-service/**"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "t-user-service/**"
 jobs:
   deploy:
     name: Deploying t-user-service
@@ -37,7 +32,6 @@ jobs:
           service: t-user-service
           image: gcr.io/t-blog-bg/t-user-service:latest
           region: europe-west1
-          flags: --allow-unauthenticated
           env_vars: |
             DATABASE_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOSTNAME }}/${{ secrets.USER_SERVICE_POSTGRES_DB }}
             AUTH_SECRET_KEY=${{ secrets.AUTH_SECRET_KEY }}
