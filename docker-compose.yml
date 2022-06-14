@@ -15,32 +15,6 @@ services:
     ports:
       - 80:80
 
-  t-auth-service:
-    image: t-auth-service
-    container_name: t-auth-service
-    build: ./t-auth-service
-    volumes:
-      - ./t-auth-service:/app/
-    environment:
-      - DATABASE_URL=postgresql://${AUTH_SERVICE_POSTGRES_USER}:${AUTH_SERVICE_POSTGRES_PASSWORD}@credentials_db/${AUTH_SERVICE_POSTGRES_DB}
-      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY}
-      - AUTH_TOKEN_ALGORITHM=${AUTH_TOKEN_ALGORITHM}
-      - AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${AUTH_ACCESS_TOKEN_EXPIRE_MINUTES}
-    depends_on:
-      - credentials_db
-
-  credentials_db:
-    image: postgres:14.2-alpine
-    container_name: t-credentials_db
-    volumes:
-      - postgres_data_credentials:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=${AUTH_SERVICE_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${AUTH_SERVICE_POSTGRES_PASSWORD}
-      - POSTGRES_DB=${AUTH_SERVICE_POSTGRES_DB}
-    ports:
-      - 5433:5432
-
   t-user-service:
     image: t-user-service
     container_name: t-user-service
@@ -48,21 +22,10 @@ services:
     volumes:
       - ./t-user-service:/app/
     environment:
-      - DATABASE_URL=postgresql://${USER_SERVICE_POSTGRES_USER}:${USER_SERVICE_POSTGRES_PASSWORD}@user_db/${USER_SERVICE_POSTGRES_DB}
-    depends_on:
-      - "user_db"
-
-  user_db:
-    image: postgres:14.2-alpine
-    container_name: t-user-service-db
-    volumes:
-      - postgres_data_user:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=${USER_SERVICE_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${USER_SERVICE_POSTGRES_PASSWORD}
-      - POSTGRES_DB=${USER_SERVICE_POSTGRES_DB}
-    ports:
-      - 5434:5432
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOSTNAME}/${USER_SERVICE_POSTGRES_DB}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY}
+      - AUTH_TOKEN_ALGORITHM=${AUTH_TOKEN_ALGORITHM}
+      - AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${AUTH_ACCESS_TOKEN_EXPIRE_MINUTES}
 
   t-blog-service:
     image: t-blog-service
@@ -71,22 +34,8 @@ services:
     volumes:
       - ./t-blog-service:/app/
     environment:
-      - DATABASE_URL=postgresql://${BLOG_SERVICE_POSTGRES_USER}:${BLOG_SERVICE_POSTGRES_PASSWORD}@blog_db/${BLOG_SERVICE_POSTGRES_DB}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOSTNAME}/${BLOG_SERVICE_POSTGRES_DB}
       - USER_SERVICE_HOST_URL=${USER_SERVICE_HOST_URL}
-    depends_on:
-      - "blog_db"
-
-  blog_db:
-    image: postgres:14.2-alpine
-    container_name: t-blog-service-db
-    volumes:
-      - postgres_data_blog:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=${BLOG_SERVICE_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${BLOG_SERVICE_POSTGRES_PASSWORD}
-      - POSTGRES_DB=${BLOG_SERVICE_POSTGRES_DB}
-    ports:
-      - 5435:5432
 
   t-article-service:
     image: t-article-service
@@ -95,23 +44,9 @@ services:
     volumes:
       - ./t-article-service:/app/
     environment:
-      - DATABASE_URL=postgresql://${ARTICLE_SERVICE_POSTGRES_USER}:${ARTICLE_SERVICE_POSTGRES_PASSWORD}@article_db/${ARTICLE_SERVICE_POSTGRES_DB}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOSTNAME}/${ARTICLE_SERVICE_POSTGRES_DB}
       - USER_SERVICE_HOST_URL=${USER_SERVICE_HOST_URL}
       - BLOG_SERVICE_HOST_URL=${BLOG_SERVICE_HOST_URL}
-    depends_on:
-      - "article_db"
-
-  article_db:
-    image: postgres:14.2-alpine
-    container_name: t-article-service-db
-    volumes:
-      - postgres_data_article:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=${ARTICLE_SERVICE_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${ARTICLE_SERVICE_POSTGRES_PASSWORD}
-      - POSTGRES_DB=${ARTICLE_SERVICE_POSTGRES_DB}
-    ports:
-      - 5436:5432
 
   t-comment-service:
     image: t-comment-service
@@ -120,27 +55,6 @@ services:
     volumes:
       - ./t-comment-service:/app/
     environment:
-      - DATABASE_URL=postgresql://${COMMENT_SERVICE_POSTGRES_USER}:${COMMENT_SERVICE_POSTGRES_PASSWORD}@comment_db/${COMMENT_SERVICE_POSTGRES_DB}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOSTNAME}/${COMMENT_SERVICE_POSTGRES_DB}
       - USER_SERVICE_HOST_URL=${USER_SERVICE_HOST_URL}
       - ARTICLE_SERVICE_HOST_URL=${ARTICLE_SERVICE_HOST_URL}
-    depends_on:
-      - "comment_db"
-
-  comment_db:
-    image: postgres:14.2-alpine
-    container_name: t-comment-service-db
-    volumes:
-      - postgres_data_comment:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=${COMMENT_SERVICE_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${COMMENT_SERVICE_POSTGRES_PASSWORD}
-      - POSTGRES_DB=${COMMENT_SERVICE_POSTGRES_DB}
-    ports:
-      - 5437:5432
-
-volumes:
-  postgres_data_credentials:
-  postgres_data_user:
-  postgres_data_blog:
-  postgres_data_article:
-  postgres_data_comment:
