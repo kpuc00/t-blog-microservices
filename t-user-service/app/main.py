@@ -7,8 +7,8 @@ from app.api.rabbitmq.rpc_server import start_listening
 
 metadata.create_all(engine)
 
-app = FastAPI(openapi_url="/api/users/openapi.json",
-              docs_url="/api/users/docs")
+app = FastAPI(openapi_url="/users/openapi.json",
+              docs_url="/users/docs")
 
 
 @app.on_event("startup")
@@ -26,4 +26,4 @@ async def connect_rabbitmq():
 async def shutdown():
     await database.disconnect()
 
-app.include_router(users, prefix="/api/users", tags=["users"])
+app.include_router(users, prefix="/users", tags=["users"])
