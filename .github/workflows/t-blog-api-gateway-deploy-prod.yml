@@ -5,7 +5,7 @@ name: Deploy t-blog-api-gateway to Google Cloud Run
 on:
   push:
     branches:
-      - main
+      - test-run-nginx-on-gcloud
     paths:
       - "t-blog-api-gateway/**"
 jobs:
