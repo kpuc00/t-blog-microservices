@@ -4,8 +4,8 @@ from app.api.db import metadata, database, engine
 
 metadata.create_all(engine)
 
-app = FastAPI(openapi_url="/api/blogs/openapi.json",
-              docs_url="/api/blogs/docs")
+app = FastAPI(openapi_url="/blogs/openapi.json",
+              docs_url="/blogs/docs")
 
 
 @app.on_event("startup")
@@ -17,4 +17,4 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
-app.include_router(blogs, prefix="/api/blogs", tags=["blogs"])
+app.include_router(blogs, prefix="/blogs", tags=["blogs"])
