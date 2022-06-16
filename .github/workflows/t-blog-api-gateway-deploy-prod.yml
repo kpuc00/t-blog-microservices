@@ -1,0 +1,35 @@
+# This workflow will build and push the image of the t-blog-api-gateway to Google Container Registry and deploy it to Google Cloud Run
+# on push or pull request to the main branch if there are changes in the t-blog-api-gateway folder.
+
+name: Deploy t-blog-api-gateway to Google Cloud Run
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "t-blog-api-gateway/**"
+jobs:
+  deploy:
+    name: Deploying t-blog-api-gateway
+    runs-on: ubuntu-latest
+    environment: t-blog-api-gateway-prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0.7.3
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY_JSON }}
+
+      # Build and push image to Google Container Registry
+      - name: Building the Docker Image (🏗)
+        working-directory: ./t-blog-api-gateway
+        run: gcloud builds submit --tag gcr.io/t-blog-bg/t-blog-api-gateway:latest
+
+      - name: Deploy to Cloud Run (🚀)
+        uses: google-github-actions/deploy-cloudrun@v0.10.0
+        with:
+          service: t-blog-api-gateway
+          image: gcr.io/t-blog-bg/t-blog-api-gateway:latest
+          region: europe-west1
