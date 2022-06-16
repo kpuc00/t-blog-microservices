@@ -4,12 +4,10 @@ from fastapi import Depends, APIRouter, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from app.api import auth_handler
 from app.api import db_manager
-from app.api.models import User, UserInDB, UserOut
-
+from app.api.models import UserInDB, UserOut
 
 ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.environ.get('AUTH_ACCESS_TOKEN_EXPIRE_MINUTES'))
-
 
 users = APIRouter()
 
@@ -21,7 +19,7 @@ async def register_user(payload: UserInDB):
     full_name = payload.full_name
     email = payload.email
     disabled = payload.disabled
-    exist = await db_manager.get_user(username)
+    exist = await db_manager.get_user_by_username(username)
     if exist:
         raise HTTPException(status_code=400, detail="Username is taken!")
     hashed_password = auth_handler.get_password_hash(password)
@@ -48,7 +46,10 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth_handler.create_access_token(
-        data={"sub": user.username, "scopes": form_data.scopes},
+        data={
+            "sub": user.username,
+            # "scopes": form_data.scopes
+        },
         expires_delta=access_token_expires
     )
     response.set_cookie(key="access_token",
@@ -58,14 +59,26 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
 
 @users.get("/users/me", response_model=UserOut)
 async def read_users_me(current_user: UserOut = Depends(auth_handler.get_current_active_user)):
-    return current_user
+    if current_user is None:
+        raise HTTPException(
+            status_code=400, detail="This user's account is disabled!")
+    else:
+        return current_user
 
 
-@users.get("/moderator")
-async def test_moderator_permission(current_user: User = Depends(auth_handler.try_moderator_scope)):
-    return {"message": f"User {current_user.username} is moderator"}
+# @users.get("/moderator")
+# async def test_moderator_permission(current_user: User = Depends(auth_handler.try_moderator_scope)):
+#     return {"message": f"User {current_user.username} is moderator"}
 
 
-@users.get("/admin")
-async def test_admin_permission(current_user: User = Depends(auth_handler.try_admin_scope)):
-    return {"message": f"User {current_user.username} is administrator"}
+# @users.get("/admin")
+# async def test_admin_permission(current_user: User = Depends(auth_handler.try_admin_scope)):
+#     return {"message": f"User {current_user.username} is administrator"}
+
+
+@users.get('/{id}', response_description="User exists")
+async def check_if_user_exists(id: int):
+    user = await db_manager.get_user_by_id(id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found!")
+    return

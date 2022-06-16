@@ -38,3 +38,4 @@ jobs:
             AUTH_SECRET_KEY=${{ secrets.AUTH_SECRET_KEY }}
             AUTH_TOKEN_ALGORITHM=${{ secrets.AUTH_TOKEN_ALGORITHM }}
             AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES }}
+            RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}

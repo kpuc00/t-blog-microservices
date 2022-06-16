@@ -5,7 +5,6 @@ services:
     image: nginx:1.21.6
     container_name: t-blog-api-gateway
     depends_on:
-      - t-auth-service
       - t-user-service
       - t-blog-service
       - t-article-service
@@ -26,6 +25,7 @@ services:
       - AUTH_SECRET_KEY=${AUTH_SECRET_KEY}
       - AUTH_TOKEN_ALGORITHM=${AUTH_TOKEN_ALGORITHM}
       - AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=${AUTH_ACCESS_TOKEN_EXPIRE_MINUTES}
+      - RABBITMQ_URL=${RABBITMQ_URL}
 
   t-blog-service:
     image: t-blog-service
@@ -36,6 +36,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOSTNAME}/${BLOG_SERVICE_POSTGRES_DB}
       - USER_SERVICE_HOST_URL=${USER_SERVICE_HOST_URL}
+      - RABBITMQ_URL=${RABBITMQ_URL}
 
   t-article-service:
     image: t-article-service
