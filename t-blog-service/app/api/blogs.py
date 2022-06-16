@@ -6,11 +6,14 @@ from app.api import db_manager
 from app.api.service import is_user_present
 from app.api.utils import OAuth2PasswordBearerWithCookie
 from app.api.rabbitmq.rpc_client import RpcClient
+import os
 
 blogs = APIRouter()
 
-oauth2_scheme = OAuth2PasswordBearerWithCookie(
-    tokenUrl="http://localhost/api/users/login")
+USER_SERVICE_HOST_URL = 'http://localhost:8002/api/users/'
+url = os.environ.get('USER_SERVICE_HOST_URL') or USER_SERVICE_HOST_URL
+
+oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl=f'{url}login')
 
 
 @blogs.get('/', response_model=List[BlogOut])
