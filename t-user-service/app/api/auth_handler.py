@@ -31,6 +31,9 @@ def get_password_hash(password):
 
 async def authenticate_user(username: str, password: str):
     user = await db_manager.get_user_by_username(username)
+    if user.disabled:
+        raise HTTPException(
+            status_code=400, detail="This account is disabled!")
     if not user:
         return False
     if not verify_password(password, user.password):
