@@ -57,11 +57,11 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
     return {"message": "User logged in successfully."}
 
 
-@users.get("/users/me", response_model=UserOut)
-async def read_users_me(current_user: UserOut = Depends(auth_handler.get_current_active_user)):
+@users.get("/me", response_model=UserOut)
+async def get_own_user_data(current_user: UserOut = Depends(auth_handler.get_current_active_user)):
     if current_user is None:
         raise HTTPException(
-            status_code=400, detail="This user's account is disabled!")
+            status_code=400, detail="This account is disabled!")
     else:
         return current_user
 
