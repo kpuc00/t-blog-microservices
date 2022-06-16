@@ -2,15 +2,14 @@ version: "3.7"
 
 services:
   t-blog-api-gateway:
-    image: nginx:1.21.6
+    image: t-blog-api-gateway
     container_name: t-blog-api-gateway
+    build: ./t-blog-api-gateway
     depends_on:
       - t-user-service
       - t-blog-service
       - t-article-service
       - t-comment-service
-    volumes:
-      - ./t-blog-api-gateway/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - 80:80
 
