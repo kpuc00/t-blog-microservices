@@ -2,19 +2,22 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-class BlogIn(BaseModel):
+class Blog(BaseModel):
     name: str
     description: str
-    authorId: int
     collaboratorsId: List[int]
 
 
-class BlogOut(BlogIn):
+class BlogInDB(Blog):
+    authorId: int
+
+
+class BlogOut(Blog):
     id: int
+    authorId: int
 
 
-class BlogUpdate(BlogIn):
+class BlogUpdate(Blog):
     name: Optional[str] = None
     description: Optional[str] = None
-    authorId: Optional[int] = None
     collaboratorsId: Optional[List[int]] = None

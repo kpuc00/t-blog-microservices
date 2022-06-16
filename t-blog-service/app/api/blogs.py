@@ -1,61 +1,52 @@
 from fastapi import HTTPException
 from typing import List
-from fastapi import Header, APIRouter, Depends
-from fastapi.security import SecurityScopes
-from app.api.models import BlogIn, BlogOut, BlogUpdate
+from fastapi import APIRouter, Depends
+from app.api.models import Blog, BlogOut, BlogUpdate, BlogInDB
 from app.api import db_manager
 from app.api.service import is_user_present
 from app.api.utils import OAuth2PasswordBearerWithCookie
-import httpx
+from app.api.rabbitmq.rpc_client import RpcClient
 
 blogs = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearerWithCookie(
-    tokenUrl="http://localhost/api/auth/login")
+    tokenUrl="http://localhost/api/users/login")
 
 
 @blogs.get('/', response_model=List[BlogOut])
-async def index(authorization: str = Depends(oauth2_scheme)):
-    print(authorization)
-    headers = {"Authorization": f"Bearer {authorization}"}
-    result = httpx.get(
-        "http://t-auth-service:8000/api/auth/users/me", headers=headers)
-    print(result)
+async def index(token: str = Depends(oauth2_scheme)):
     return await db_manager.get_all_blogs()
 
 
-@blogs.get('/{id}', response_model=BlogOut)
-async def get_blog(id: int):
+@blogs.get('/{id}', response_model=BlogOut,)
+async def get_blog(id: int, token: str = Depends(oauth2_scheme)):
     blog = await db_manager.get_blog(id)
     if not blog:
         raise HTTPException(status_code=404, detail="Blog not found")
     return blog
 
 
-@blogs.post('/', status_code=201)
-async def create_blog(payload: BlogIn):
-    authorId = payload.authorId
-    collaboratorsId = payload.collaboratorsId
+@blogs.post('/', status_code=201, response_model=BlogOut)
+async def create_blog(payload: Blog, token: str = Depends(oauth2_scheme)):
+    rpc = await RpcClient().connect()
+    authorId = await rpc.call(token)
 
-    if not is_user_present(authorId):
-        raise HTTPException(
-            status_code=404, detail=f"Author with id:{authorId} not found")
-    for collaboratorId in collaboratorsId:
-        if not is_user_present(collaboratorId):
+    for collaboratorId in payload.collaboratorsId:
+        if not is_user_present(collaboratorId, token):
             raise HTTPException(
-                status_code=404, detail=f"Collaborator with id:{collaboratorId} not found")
-
-    blogId = await db_manager.add_blog(payload)
+                status_code=404, detail=f"Collaborator with id:{collaboratorId} does not exist!")
+    blog = BlogInDB.parse_obj({"name": payload.name, "description": payload.description,
+                               "collaboratorsId": payload.collaboratorsId, "authorId": authorId})
+    blogId = await db_manager.add_blog(blog)
     response = {
         'id': blogId,
-        **payload.dict()
+        **blog.dict()
     }
-
     return response
 
 
 @blogs.put('/{id}')
-async def update_blog(id: int, payload: BlogUpdate):
+async def update_blog(id: int, payload: BlogUpdate,  token: str = Depends(oauth2_scheme)):
     blog = await db_manager.get_blog(id)
     if not blog:
         raise HTTPException(status_code=404, detail="Blog not found")
@@ -64,19 +55,19 @@ async def update_blog(id: int, payload: BlogUpdate):
 
     if "collaboratorsId" in update_data:
         for collaboratorId in payload.collaboratorsId:
-            if not is_user_present(collaboratorId):
+            if not is_user_present(collaboratorId, token):
                 raise HTTPException(
-                    status_code=404, detail=f"User with id:{collaboratorId} not found")
+                    status_code=404, detail=f"User with id:{collaboratorId} does not exist!")
 
-    blog_in_db = BlogIn(**blog)
+    blog_in_db = Blog(**blog)
 
     updated_blog = blog_in_db.copy(update=update_data)
 
     return await db_manager.update_blog(id, updated_blog)
 
 
-@blogs.delete('/{id}')
-async def delete_blog(id: int):
+@blogs.delete('/{id}', status_code=204)
+async def delete_blog(id: int, token: str = Depends(oauth2_scheme)):
     blog = await db_manager.get_blog(id)
     if not blog:
         raise HTTPException(status_code=404, detail="Blog not found")

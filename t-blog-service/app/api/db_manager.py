@@ -1,8 +1,8 @@
-from app.api.models import BlogIn, BlogOut, BlogUpdate
+from app.api.models import Blog, BlogInDB
 from app.api.db import blogs, database
 
 
-async def add_blog(payload: BlogIn):
+async def add_blog(payload: BlogInDB):
     query = blogs.insert().values(**payload.dict())
 
     return await database.execute(query=query)
@@ -23,7 +23,7 @@ async def delete_blog(id: int):
     return await database.execute(query=query)
 
 
-async def update_blog(id: int, payload: BlogIn):
+async def update_blog(id: int, payload: Blog):
     query = (
         blogs
         .update()

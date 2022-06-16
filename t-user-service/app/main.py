@@ -1,6 +1,9 @@
+import asyncio
+from asyncio.log import logger
 from fastapi import FastAPI
 from app.api.users import users
 from app.api.db import metadata, database, engine
+from app.api.rabbitmq.rpc_server import start_listening
 
 metadata.create_all(engine)
 
@@ -11,6 +14,12 @@ app = FastAPI(openapi_url="/api/users/openapi.json",
 @app.on_event("startup")
 async def startup():
     await database.connect()
+
+
+@app.on_event("startup")
+async def connect_rabbitmq():
+    asyncio.create_task(start_listening())
+    logger.info("RPC server started")
 
 
 @app.on_event("shutdown")
