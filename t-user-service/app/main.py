@@ -12,7 +12,7 @@ app = FastAPI(openapi_url="/users/openapi.json",
               docs_url="/users/docs")
 
 origins = [
-    "https://tblog.kstrahilov.dev/",
+    "https://tblog.kstrahilov.dev",
 ]
 
 app.add_middleware(

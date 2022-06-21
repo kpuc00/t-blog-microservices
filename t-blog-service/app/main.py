@@ -9,7 +9,7 @@ app = FastAPI(openapi_url="/blogs/openapi.json",
               docs_url="/blogs/docs")
 
 origins = [
-    "https://tblog.kstrahilov.dev/",
+    "https://tblog.kstrahilov.dev",
 ]
 
 app.add_middleware(
