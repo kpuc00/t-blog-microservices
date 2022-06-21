@@ -29,10 +29,10 @@ async def create_article(payload: ArticleIn):
 
     if not is_user_present(authorId):
         raise HTTPException(
-            status_code=404, detail=f"Author with id:{authorId} not found")
+            status_code=404, detail=f"Author with id:{authorId} not found!")
     if not is_blog_present(blogId):
         raise HTTPException(
-            status_code=404, detail=f"Blog with id:{blogId} not found")
+            status_code=404, detail=f"Blog with id:{blogId} not found!")
 
     articleId = await db_manager.add_article(payload)
     response = {
