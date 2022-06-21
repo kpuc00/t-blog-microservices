@@ -13,6 +13,11 @@ async def get_all_blogs():
     return await database.fetch_all(query=query)
 
 
+async def get_blogs_by_author_id(authorId):
+    query = blogs.select(blogs.c.authorId == authorId)
+    return await database.fetch_all(query=query)
+
+
 async def get_blog(id):
     query = blogs.select(blogs.c.id == id)
     return await database.fetch_one(query=query)

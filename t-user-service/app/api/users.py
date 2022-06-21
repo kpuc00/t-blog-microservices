@@ -16,9 +16,14 @@ users = APIRouter()
 async def register_user(payload: UserInDB):
     username = payload.username
     password = payload.password
-    full_name = payload.full_name
+    first_name = payload.first_name
+    last_name = payload.last_name
     email = payload.email
-    disabled = payload.disabled
+    disabled = None
+    if payload.disabled is None:
+        disabled = False
+    else:
+        disabled = payload.disabled
     exist = await db_manager.get_user_by_username(username)
     if exist:
         raise HTTPException(status_code=400, detail="Username is taken!")
@@ -26,7 +31,8 @@ async def register_user(payload: UserInDB):
     user = {
         "username": username,
         "password": hashed_password,
-        "full_name": full_name,
+        "first_name": first_name,
+        "last_name": last_name,
         "email": email,
         "disabled": disabled
     }
@@ -34,7 +40,7 @@ async def register_user(payload: UserInDB):
     return {"message": "User registered successfully."}
 
 
-@users.post("/login")
+@users.post("/login", response_model=UserOut)
 async def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     user = await auth_handler.authenticate_user(
         form_data.username, form_data.password)
@@ -54,7 +60,13 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
     )
     response.set_cookie(key="access_token",
                         value=f"Bearer {access_token}", httponly=True)
-    return {"message": "User logged in successfully."}
+    return user
+
+
+@users.get("/logout")
+async def logout_user(response: Response, token: str = Depends(auth_handler.oauth2_scheme)):
+    response.set_cookie(key="access_token", value=None, httponly=True)
+    return {"message": "You have been logged out!"}
 
 
 @users.get("/me", response_model=UserOut)

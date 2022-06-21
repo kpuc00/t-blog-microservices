@@ -21,12 +21,21 @@ async def index(token: str = Depends(oauth2_scheme)):
     return await db_manager.get_all_blogs()
 
 
-@blogs.get('/{id}', response_model=BlogOut,)
+@blogs.get('/{id}', response_model=BlogOut)
 async def get_blog(id: int, token: str = Depends(oauth2_scheme)):
     blog = await db_manager.get_blog(id)
     if not blog:
         raise HTTPException(status_code=404, detail="Blog not found")
     return blog
+
+
+@blogs.get('/own', response_model=List[BlogOut])
+async def get_own_blogs(token: str = Depends(oauth2_scheme)):
+    print(token)
+    rpc = await RpcClient().connect()
+    authorId = await rpc.call(token)
+
+    return await db_manager.get_blogs_by_author_id(authorId)
 
 
 @blogs.post('/', status_code=201, response_model=BlogOut)

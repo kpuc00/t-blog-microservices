@@ -10,7 +10,8 @@ class TokenData(BaseModel):
 class User(BaseModel):
     username: str
     email: Union[str, None] = None
-    full_name: Union[str, None] = None
+    first_name: Union[str, None] = None
+    last_name: Union[str, None] = None
     disabled: Union[bool, None] = None
 
 
